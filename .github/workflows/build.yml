@@ -36,6 +36,7 @@ jobs:
         run: cargo build --verbose --release
 
   run_benchmarks:
+    name: Run benchmarks
     runs-on: ubuntu-latest
 
     steps:
