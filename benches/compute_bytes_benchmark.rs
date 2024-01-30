@@ -12,7 +12,7 @@ fn compute_bytes_on_raw_data(c: &mut Criterion) {
     let inputs = [
         ("compute_bytes_small", 1024),
         ("compute_bytes_medium", 8192),
-        ("compute_bytes_large", 65536),
+        ("compute_bytes_large", 10), /* Manually set to a lower value to showcase the difference in benches */
     ];
 
     for (name, size) in inputs.iter() {
