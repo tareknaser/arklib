@@ -1,4 +1,4 @@
-name: Verify build
+name: arklib CI
 
 on: [push]
 
@@ -16,7 +16,7 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-            components: rustfmt, clippy
+          components: rustfmt, clippy
 
       - name: Check
         run: cargo check
@@ -24,7 +24,7 @@ jobs:
       - name: Format
         run: |
           cargo fmt --all -- --check
-          cargo clippy 
+          cargo clippy
 
       - name: Build Debug
         run: cargo build --verbose
@@ -34,3 +34,18 @@ jobs:
 
       - name: Build Release
         run: cargo build --verbose --release
+
+  run_benchmarks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Build and run benchmarks
+        run: cargo bench --verbose
