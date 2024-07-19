@@ -803,6 +803,71 @@ mod tests {
         (file, file_path)
     }
 
+    /// Test updating the resource index.
+    ///
+    /// ## Test scenario:
+    /// - Create files within the temporary directory.
+    /// - Build a resource index in the temporary directory.
+    /// - Assert that the index initially contains the expected number of entries.
+    /// - Create a new file, modify an existing file, and remove another file.
+    /// - Update the resource index.
+    /// - Assert that the index contains the expected number of entries after the
+    ///   update.
+    /// - Assert that the entries in the index match the expected state after the
+    ///   update.
+    #[test]
+    fn update_all() {
+        let temp_dir = TempDir::new("ark_test_resource_index_update")
+            .expect("Failed to create temp dir");
+        let root_path = temp_dir.path();
+
+        let file_path = root_path.join("file.txt");
+        fs::write(&file_path, "file content").expect("Failed to write to file");
+
+        let image_path = root_path.join("image.png");
+        fs::write(&image_path, "image content")
+            .expect("Failed to write to file");
+
+        let mut index = ResourceIndex::build(root_path);
+        index.store().expect("Failed to store index");
+        assert_eq!(
+            index.path2id.len(),
+            2,
+            "Index should contain 2 resources: {:?}",
+            index
+        );
+
+        // create new file
+        let new_file_path = root_path.join("new_file.txt");
+        fs::write(&new_file_path, "new file content")
+            .expect("Failed to write to file");
+
+        // modify file
+        fs::write(&file_path, "updated file content")
+            .expect("Failed to write to file");
+
+        // remove file
+        fs::remove_file(&image_path).expect("Failed to remove file");
+
+        index
+            .update_all()
+            .expect("Failed to update index");
+        // Index now contains 2 resources (file.txt and new_file.txt)
+        assert_eq!(index.path2id.len(), 2, "{:?}", index);
+
+        let resource = index
+            .path2id
+            .get(&file_path)
+            .expect("Resource not found");
+
+        let _resource = index
+            .path2id
+            .get(&new_file_path)
+            .expect("Resource not found");
+
+        assert!(index.path2id.contains_key(&new_file_path), "{:?}", index);
+    }
+
     #[test]
     fn resource_index_load_store() {
         let temp_dir = TempDir::new("arklib_test")
