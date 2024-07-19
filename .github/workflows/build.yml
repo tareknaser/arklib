@@ -6,7 +6,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  check:
+  linux:
     name: Build ArkLib
     runs-on: ubuntu-latest
 
@@ -16,7 +16,7 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-            components: rustfmt, clippy
+          components: rustfmt, clippy
 
       - name: Check
         run: cargo check
@@ -24,7 +24,7 @@ jobs:
       - name: Format
         run: |
           cargo fmt --all -- --check
-          cargo clippy 
+          cargo clippy
 
       - name: Build Debug
         run: cargo build --verbose
@@ -34,3 +34,39 @@ jobs:
 
       - name: Build Release
         run: cargo build --verbose --release
+
+  windows:
+    name: Test on Windows
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Release
+        run: cargo build --verbose --release
+
+      - name: Run tests
+        run: |
+          cargo test --workspace --verbose
+          cargo test --workspace --verbose
+
+  mac-intel:
+    name: Test on macOS Intel
+    runs-on: macos-14
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Release
+        run: cargo build --verbose --release
+
+      - name: Run tests
+        run: |
+          cargo test --workspace --verbose
+          cargo test --workspace --verbose
